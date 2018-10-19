@@ -6,6 +6,7 @@
         var urlbase = $location.$$absUrl + '/';
         var chat = $.connection.chatHub;
         $.connection.hub.start();
+
         app.Entities;
 
         chat.client.addNewMessageToPage = function (name, message, timestamp) {
@@ -13,6 +14,7 @@
             $scope.$apply(function () {
                 app.Entities = message;
             });
+            $('#itmjson').val() = message;
         };
 
         $.connection.hub.start();
