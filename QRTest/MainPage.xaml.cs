@@ -206,7 +206,15 @@ namespace QRTest
                                                 id = 1,
                                                 json = content
                                             };
-                                            var response2 = client2.PostAsync("https://luckycharms.azurewebsites.net/api/items", new StringContent(JsonConvert.SerializeObject(item)));
+
+                                            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "https://luckycharms.azurewebsites.net/items");
+                                            request.Content = new StringContent(JsonConvert.SerializeObject(item), Encoding.UTF8, "application/json");
+                                            var response2 = await client2.SendAsync(request);
+
+                                            if (!response2.IsSuccessStatusCode)
+                                            {
+                                                Debug.WriteLine(response2.ReasonPhrase);
+                                            }
 
                                             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                                             {
