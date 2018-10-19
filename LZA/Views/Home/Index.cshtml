@@ -1,4 +1,6 @@
-﻿@{
+﻿<html ng-app="LZA">
+
+@{
     ViewBag.Title = "Home Page";
 }
 @section scripts {
@@ -11,11 +13,58 @@
     <!--SignalR script to update the chat page and send messages.-->
     <script src="~/Scripts/angular.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/app/app.js"></script>
     <script>
-
+        $(function () {
+            // Reference the auto-generated proxy for the hub.
+            var chat = $.connection.chatHub;
+            // Create a function that the hub can call back to display messages.
+            chat.client.addNewMessageToPage = function (name, message) {
+                // Add the message to the page.
+                $('#discussion').append('<li><strong>' + htmlEncode(name)
+                    + '</strong>: ' + htmlEncode(message) + '</li>');
+            };
+            // Get the user name and store it to prepend to messages.
+            //$('#displayname').val(prompt('Enter your name:', ''));
+            // Set initial focus to message input box.
+            $('#message').focus();
+            // Start the connection.
+            $.connection.hub.start().done(function () {
+                $('#sendmessage').click(function () {
+                    // Call the Send method on the hub.
+                    chat.server.send($('#displayname').val(), $('#message').val());
+                    // Clear text box and reset focus for next comment.
+                    $('#message').val('').focus();
+                });
+            });
+        });
+        // This optional function html-encodes messages for display in the page.
+        function htmlEncode(value) {
+            var encodedValue = $('<div />').text(value).html();
+            return encodedValue;
+        }
     </script>
-}<body style="font-family: Verdana, Geneva, Tahoma, sans-serif">
-    <div style="height:100%;width:100%;background-color: black;color: white;">
-
+}
+<body style="font-family: Verdana, Geneva, Tahoma, sans-serif;background-color:black;">
+    <div style="height:100%;width: 100%;" ng-controller="KVSController as kvs" class="container-fluid">
+        <div class="row">
+            <div ng-repeat="o in kvs.orders" class="col-sm-2">
+                <div style="width:150px;">
+                    @*header of order*@
+                    <div style="height:20px;width:100%;text-align:right;background-color:lightblue;">
+                        <span>{{o.title}}</span>
+                    </div>
+                    <div ng-repeat="i in o.items" style="background-color:white;padding:2px;">
+                        <span>{{i.itemcount}} {{i.displayname}}</span>
+                    </div>
+                    @*footer of order*@
+                    <div style="height:20px;width:100%;text-align:left;background-color:salmon;">
+                        <span> Paid </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="discussion"></div>
     </div>
 </body>
+</html>

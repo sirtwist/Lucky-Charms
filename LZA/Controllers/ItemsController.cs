@@ -7,6 +7,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using Microsoft.AspNet.SignalR;
+using LZA.Hubs;
 
 namespace LZA.Controllers
 {
@@ -26,6 +28,8 @@ namespace LZA.Controllers
             item.json = JsonConvert.SerializeObject(vision);
 
             rep.Update(item);
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
+            hubContext.Clients.All.send("LZA", item);
         }
     }
 }
