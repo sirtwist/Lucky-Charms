@@ -12,7 +12,8 @@
             // app.match = $.grep(app.Entities, function (e) { return e.EntityIDCorp == entity; })[0];
             app.Entities = JSON.parse(message);
             $scope.$apply(function () {
-
+                $("#itmjson").val("");
+                var found = new Array();
                 //$('#itmjson').val(message);
                 for (var x = 0; x < app.Entities.predictions.length; x++);
                 {
@@ -22,7 +23,8 @@
                             var i = app.kvsorders[ii].itms[iii];
                             if (i.tag === e.tagName) {
                                 i.fulfilled = true;
-                                $("#itmjson").val(e.tagName);
+                                found.push(e.tagName);
+                                $("#itmjson").val($("#itmjson").val() + ", " + e.tagName + " " + e.probability);
                             }
                             else {
                                 i.fulfilled = false;
@@ -30,8 +32,10 @@
                         }
                     }
                 }
+                
             });
-            //$("#itmjson").val(message);
+            $("#itmjson").val(found.join());
+
             //$rootScope.$apply();
         };
 
