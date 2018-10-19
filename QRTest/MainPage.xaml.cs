@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Cognitive.CustomVision.Prediction;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -29,6 +31,12 @@ using Windows.UI.Xaml.Navigation;
 
 namespace QRTest
 {
+    public class Item
+    {
+        public int id { get; set; }
+        public string json { get; set; }
+    }
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -59,7 +67,7 @@ namespace QRTest
                }).Where(t => t.colorSourceInfo != null)
                .ToList();
 
-            var selectedGroupObjects = selectedGroupObjectsList.Skip(1).FirstOrDefault();
+            var selectedGroupObjects = selectedGroupObjectsList.FirstOrDefault();
 
             MediaFrameSourceGroup selectedGroup = selectedGroupObjects?.sourceGroup;
             MediaFrameSourceInfo colorSourceInfo = selectedGroupObjects?.colorSourceInfo;
@@ -162,9 +170,12 @@ namespace QRTest
                             BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
 
                             // Set the software bitmap
-                            encoder.SetSoftwareBitmap(openCVOutputBitmap);
+                            encoder.SetSoftwareBitmap(inputBitmap);
 
                             await encoder.FlushAsync();
+
+                            var bytes = new byte[stream.Size];
+                            await stream.ReadAsync(bytes.AsBuffer(), (uint)stream.Size, InputStreamOptions.None);
 
                             var client = new HttpClient();
                             var queryString = HttpUtility.ParseQueryString(string.Empty);
@@ -178,27 +189,70 @@ namespace QRTest
 
                             HttpResponseMessage response;
 
-                            using (MultipartFormDataContent _multiPartContent = new MultipartFormDataContent())
+                            using (ByteArrayContent streamContent = new ByteArrayContent(bytes))
                             {
-                                    StreamContent _imageData = new StreamContent(stream.AsStream());
+                                try
+                                {
+                                    response = await client.PostAsync(uri, streamContent);
 
-                                    _imageData.Headers.ContentType = new MediaTypeHeaderValue("image/png");
-
-                                    _multiPartContent.Add(_imageData, "file", "filename.png");
-
-                                    response = await client.PostAsync(uri, _multiPartContent);
-                                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                                    if (response.IsSuccessStatusCode)
                                     {
-                                        textElement.Text = await response.Content.ReadAsStringAsync();
-                                    });
+                                        try
+                                        {
+                                            var content = await response.Content.ReadAsStringAsync();
+                                            HttpClient client2 = new HttpClient();
+                                            Item item = new Item()
+                                            {
+                                                id = 1,
+                                                json = content
+                                            };
+                                            var response2 = client2.PostAsync("https://luckycharms.azurewebsites.net/api/items", new StringContent(JsonConvert.SerializeObject(item)));
+
+                                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                                            {
+                                                textElement.Text = content;
+                                            });
+                                        }
+                                        catch (Exception ex)
+                                        {
+
+                                        }
+
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine(ex.ToString());
+                                }
 
                             }
                         }
+
+                        //using (InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream())
+                        //{
+                        //    BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
+
+                        //    // Set the software bitmap
+                        //    encoder.SetSoftwareBitmap(openCVOutputBitmap);
+
+                        //    await encoder.FlushAsync();
+
+                        //    var predictionEndpoint = new PredictionEndpoint() { ApiKey = "3ac99d01a5ed4ea7a155b8fdc688a5fa" };
+
+
+                        //    var result = await predictionEndpoint.PredictImageWithHttpMessagesAsync(new Guid("0c1a773e-bb3d-4c84-9749-99bee73cbe1e"), stream.AsStream());
+                        //    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        //    {
+                        //        textElement.Text = JsonConvert.SerializeObject(result.Body);
+                        //    });
+                        //}
+
+
                     }
                     else
                     {
                         frameSkip++;
-                        if (frameSkip > 6)
+                        if (frameSkip > 20)
                         {
                             frameSkip = 0;
                         }
