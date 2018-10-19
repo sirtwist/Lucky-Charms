@@ -2,7 +2,7 @@
     .controller('KVSController', ['$scope', '$http', '$window', '$location', function ($scope, $http, $window, $location) {
         var app = this;
         app.kvsorders = new Array();
-
+        $scope.$watch(app.kvsorders, function () { }, true);
         var urlbase = $location.$$absUrl + '/';
         var chat = $.connection.chatHub;
 
@@ -10,34 +10,34 @@
 
         chat.client.addNewMessageToPage = function (name, message) {
             // app.match = $.grep(app.Entities, function (e) { return e.EntityIDCorp == entity; })[0];
-            //$scope.$apply(function () {
             app.Entities = JSON.parse(message);
-            //});
-            //$('#itmjson').val(message);
-            for (var x = 0; x < app.Entities.predictions.length; x++);
-            {
-                var e = app.Entities.predictions[x-1];
-                for (var ii = 0; ii < app.kvsorders.length; ii++)
+            $scope.$apply(function () {
+
+                //$('#itmjson').val(message);
+                for (var x = 0; x < app.Entities.predictions.length; x++);
                 {
-                    for (var iii = 0; iii < app.kvsorders[ii].itms.length; iii++)
-                    {
-                        var i = app.kvsorders[ii].itms[iii];
-                        if (i.tag === e.tagName) {
-                            i.fulfilled = true;
-                        }
-                        else {
-                            i.fulfilled = false;
+                    var e = app.Entities.predictions[x - 1];
+                    for (var ii = 0; ii < app.kvsorders.length; ii++) {
+                        for (var iii = 0; iii < app.kvsorders[ii].itms.length; iii++) {
+                            var i = app.kvsorders[ii].itms[iii];
+                            if (i.tag === e.tagName) {
+                                i.fulfilled = true;
+                            }
+                            else {
+                                i.fulfilled = false;
+                            }
                         }
                     }
                 }
-            }
-            $scope.$apply();
+            });
+            $("#itmjson").val(message);
+            //$rootScope.$apply();
         };
 
         $.connection.hub.start();
 
         FetchOrders(app);
-        //$scope.$watch(app.kvsorders, function () { }, true);
+
 
 
         function FetchOrders(app) {
@@ -46,7 +46,7 @@
             app.kvsorders[0].itms.push(getitem(1, 'cheeseburger', 'Cheeseburger'));
             app.kvsorders[0].itms.push(getitem(1, 'nugget10', '10 Pc Nuggets'));
 
-            //app.orders[0].itms[0].fullfilled = true;
+            //app.kvsorders[0].itms[0].fullfilled = true;
 
             app.kvsorders.push(getorder('Bag  R06 - 20'));
             app.kvsorders[1].itms.push(getitem(1, 'bigmac', 'Big Mac'));
@@ -85,7 +85,7 @@
                 title: t,
                 itms: new Array()
             };
-            
+
             return order;
         };
 
