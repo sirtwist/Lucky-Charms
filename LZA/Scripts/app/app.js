@@ -22,6 +22,7 @@
                             var i = app.kvsorders[ii].itms[iii];
                             if (i.tag === e.tagName) {
                                 i.fulfilled = true;
+                                $("#itmjson").val(e.tagName);
                             }
                             else {
                                 i.fulfilled = false;
@@ -30,7 +31,7 @@
                     }
                 }
             });
-            $("#itmjson").val(message);
+            //$("#itmjson").val(message);
             //$rootScope.$apply();
         };
 
