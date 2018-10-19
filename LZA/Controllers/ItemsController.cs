@@ -1,6 +1,8 @@
 ﻿using LZA.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -16,6 +18,13 @@ namespace LZA.Controllers
         {
             var rep = new GenericRepository<Item>(new ConnectionFactory());
             item.id = 1;
+
+            var vision = JsonConvert.DeserializeObject<VisionResponse>(item.json);
+
+            vision.predictions = vision.predictions.Where(x => x.probability > Settings.MinValue).ToArray();
+
+            item.json = JsonConvert.SerializeObject(vision);
+
             rep.Update(item);
         }
     }
