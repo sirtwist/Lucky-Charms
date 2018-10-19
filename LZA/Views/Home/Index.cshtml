@@ -14,7 +14,7 @@
     <script src="~/Scripts/angular.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/app/app.js"></script>
-    <script>
+    @*<script>
         $(function () {
             // Reference the auto-generated proxy for the hub.
             var chat = $.connection.chatHub;
@@ -43,18 +43,18 @@
             var encodedValue = $('<div />').text(value).html();
             return encodedValue;
         }
-    </script>
+    </script>*@
 }
 <body style="font-family: Verdana, Geneva, Tahoma, sans-serif;background-color:black;">
     <div style="height:100%;width: 100%;" ng-controller="KVSController as kvs" class="container-fluid">
         <div class="row">
-            <div ng-repeat="o in kvs.orders" class="col-sm-2">
+            <div ng-repeat="o in kvs.kvsorders" class="col-sm-2">
                 <div style="width:150px;">
                     @*header of order*@
                     <div style="height:20px;width:100%;text-align:right;background-color:lightblue;">
                         <span>{{o.title}}</span>
                     </div>
-                    <div ng-repeat="i in o.items" style="background-color:white;padding:2px;">
+                    <div ng-repeat="i in o.itms" ng-style="{'background-color': i.fullfilled ? 'green' : 'white'}" style="background-color: white;padding:2px;">
                         <span>{{i.itemcount}} {{i.displayname}}</span>
                     </div>
                     @*footer of order*@
@@ -65,7 +65,7 @@
             </div>
         </div>
         <div><br />
-            <textarea id="itmjson" style="height:150px;width:400px;" ></textarea>
+            @*<textarea id="itmjson" style="height:150px;width:400px;" ></textarea>*@
         </div>
     </div>
 </body>

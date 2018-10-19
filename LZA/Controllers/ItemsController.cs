@@ -8,8 +8,8 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Client;
 using LZA.Hubs;
-
 namespace LZA.Controllers
 {
     public class ItemsController : ApiController
@@ -23,13 +23,19 @@ namespace LZA.Controllers
 
             var vision = JsonConvert.DeserializeObject<VisionResponse>(item.json);
 
-            vision.predictions = vision.predictions.Where(x => x.probability > Settings.MinValue).ToArray();
+            vision.predictions = vision.predictions.Where(x => x.probability*100 > Settings.MinValue).ToArray();
 
             item.json = JsonConvert.SerializeObject(vision);
 
             rep.Update(item);
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<ChatHub>();
-            hubContext.Clients.All.send("LZA", item);
+
+            var connection = new HubConnection("http://localhost:54588/");
+
+            var myhub = connection.CreateHubProxy("ChatHub");
+            connection.Start().Wait();
+            
+            myhub.Invoke<string>("Send", "LZA", item.json);
+            
         }
     }
 }
