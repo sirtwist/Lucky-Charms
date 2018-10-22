@@ -46,16 +46,16 @@
     </script>*@
 }
 <body style="font-family: Verdana, Geneva, Tahoma, sans-serif;background-color:black;">
-    <div style="height:100%;width: 100%;" ng-controller="KVSController as kvs" class="container-fluid">
+    <div style="height:100%;width: 100%;" ng-controller="KVSController" class="container-fluid">
         <div class="row">
-            <div ng-repeat="o in kvs.kvsorders" class="col-sm-2">
+            <div ng-repeat="o in kvsorders" class="col-sm-2">
                 <div style="width:150px;">
                     @*header of order*@
                     <div style="height:20px;width:100%;text-align:right;background-color:lightblue;">
                         <span>{{o.title}}</span>
                     </div>
-                    <div ng-repeat="i in o.itms" ng-style="{'background-color': i.fullfilled ? 'green' : 'white'}" style="background-color: white;padding:2px;">
-                        <span>{{i.itemcount}} {{i.displayname}}</span>
+                    <div ng-repeat="i in o.itms"  class="{{i.tag}}" ng-style="{'background-color': i.fulfilled ? 'green' : 'white'}" style="background-color: white;padding:2px;">
+                        <span>{{i.itemcount}} {{i.displayname}} {{i.fulfilled}} </span>
                     </div>
                     @*footer of order*@
                     <div style="height:20px;width:100%;text-align:left;background-color:salmon;">
