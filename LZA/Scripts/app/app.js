@@ -17,7 +17,7 @@
             });
 
             
-            $("#itmjson").val("");
+            //$("#itmjson").val("");
             angular.forEach($scope.kvsorders, function (o) {
                 angular.forEach(o.itms, function (i) {
                     i.fulfilled = false;
@@ -30,7 +30,7 @@
                     angular.forEach($scope.kvsorders, function (o) {
                         angular.forEach(o.itms, function (i) {
                             if (i.tag === e.tagName) {
-                                $("#itmjson").val($("#itmjson").val() + ", " + e.tagName + " " + e.probability);
+                               // $("#itmjson").val($("#itmjson").val() + ", " + e.tagName + " " + e.probability);
                                 $scope.$apply(function () {
                                     i.fulfilled = true;
                                 });
